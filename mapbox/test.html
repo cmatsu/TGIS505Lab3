@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Create and style clusters</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#usbefore { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="usbefore"></div>
+
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoiY21hdHN1IiwiYSI6ImNraGNuNmw0YzAxajIyeXA1ZWE4aG80NDcifQ.3Y8_bQTBQeuNtqFL3OMBVw';
+var usbeforemap = new mapboxgl.Map({
+container: 'usbefore',
+style: 'mapbox://styles/mapbox/light-v10',
+center: [-98.327818, 38.6427633],
+zoom: 3.5
+});
+
+usbeforemap.on('load', function () {
+// Add a new source from our GeoJSON data and
+// set the 'cluster' option to true. GL-JS will
+// add the point_count property to your source data.
+usbeforemap.addSource('usfires', {
+type: 'geojson',
+// Point to GeoJSON data. This example visualizes all M1.0+ usfires
+// from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+data: 'https://opendata.arcgis.com/datasets/c57777877aa041ecaef98ff2519aabf6_62.geojson',
+cluster: true,
+clusterMaxZoom: 14, // Max zoom to cluster points on
+clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+});
+
+usbeforemap.addLayer({
+id: 'clusters',
+type: 'circle',
+source: 'usfires',
+filter: ['has', 'point_count'],
+paint: {
+// Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+// with three steps to implement three types of circles:
+//   * Blue, 20px circles when point count is less than 100
+//   * Yellow, 30px circles when point count is between 100 and 750
+//   * Pink, 40px circles when point count is greater than or equal to 750
+'circle-color': [
+	'step',
+	['get', 'point_count'],
+				'rgba(255, 255, 204, 0.6)',
+				23.4375,
+				'rgba(255, 230, 148, 0.6)',
+				46.875,
+				'rgba(254, 190, 88, 0.6)',
+				93.75,
+				'rgba(252, 139, 58, 0.6)',
+				187.5,
+				'rgba(244, 61, 37, 0.6)',
+				375,
+				'rgba(200, 9, 35, 0.6)',
+				750,
+				'rgba(128, 0, 38, 0.6)'
+],
+'circle-radius': [
+	'step',
+	['get', 'point_count'],
+				10,
+				23.4375,
+				15,
+				46.875,
+				20,
+				93.75,
+				25,
+				187.5,
+				30,
+				375,
+				35,
+				750,
+				40
+]
+}
+});
+
+usbeforemap.addLayer({
+id: 'cluster-count',
+type: 'symbol',
+source: 'usfires',
+filter: ['has', 'point_count'],
+layout: {
+'text-field': '{point_count_abbreviated}',
+'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+'text-size': 12
+}
+});
+
+usbeforemap.addLayer({
+id: 'unclustered-point',
+type: 'circle',
+source: 'usfires',
+filter: ['!', ['has', 'point_count']],
+paint: {
+'circle-color': '#ec6937',
+'circle-radius': 4,
+'circle-stroke-width': 1,
+'circle-stroke-color': '#fff'
+}
+});
+
+// inspect a cluster on click
+usbeforemap.on('click', 'clusters', function (e) {
+var features = usbeforemap.queryRenderedFeatures(e.point, {
+layers: ['clusters']
+});
+var clusterId = features[0].properties.cluster_id;
+usbeforemap.getSource('usfires').getClusterExpansionZoom(
+clusterId,
+function (err, zoom) {
+if (err) return;
+mapbox://styles/cmatsu/ckpioxob437pu18nzzx1551ax
+usbeforemap.easeTo({
+center: features[0].geometry.coordinates,
+zoom: zoom
+});
+}
+);
+});
+
+// When a click event occurs on a feature in
+// the unclustered-point layer, open a popup at
+// the location of the feature, with
+// description HTML from its properties.
+usbeforemap.on('click', 'unclustered-point', function (e) {
+var coordinates = e.features[0].geometry.coordinates.slice();
+var firetype = e.features[0].properties.FIRE_TYPE;
+var date = e.features[0].properties.IG_DATE;
+var acres = e.features[0].properties.ACRES;
+var comments = e.features[0].properties.COMMENTS;
+
+// Ensure that if the map is zoomed out such that
+// multiple copies of the feature are visible, the
+// popup appears over the copy being pointed to.
+while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+}
+
+new mapboxgl.Popup()
+.setLngLat(coordinates)
+.setHTML(
+'Firetype: ' + firetype + '<br>Date of occurrence: ' + date.substring(0,10) + '<br>Acres burned: ' + acres + '<br>Comments: ' + comments
+)
+.addTo(usbeforemap);
+});
+
+usbeforemap.on('mouseenter', 'clusters', function () {
+usbeforemap.getCanvas().style.cursor = 'pointer';
+});
+usbeforemap.on('mouseleave', 'clusters', function () {
+usbeforemap.getCanvas().style.cursor = '';
+});
+});
+</script>
+
+</body>
+</html>

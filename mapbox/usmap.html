@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Swipe between maps</title>
+		<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+		<link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet">
+		<link rel='preconnect' href='https://fonts.gstatic.com'>
+		<link href='https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap' rel='stylesheet'>
+		<script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
+	</head>
+	<body>
+
+	<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+	<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
+	<link rel="stylesheet" href="usstyles.css" type="text/css">
+	<div id="uscompare">
+		<div id="usbefore" class="map"></div>
+		<div id="usafter" class="map">
+			<div class='map-overlay' id='usafterlegend'></div>
+		</div>
+	</div>
+
+	<script>
+		mapboxgl.accessToken = "pk.eyJ1IjoiY21hdHN1IiwiYSI6ImNraGNuNmw0YzAxajIyeXA1ZWE4aG80NDcifQ.3Y8_bQTBQeuNtqFL3OMBVw";
+
+		var usbeforemap = new mapboxgl.Map({
+			container: 'usbefore',
+			style: 'mapbox://styles/cmatsu/ckpioxob437pu18nzzx1551ax',
+			center: [-98.327818, 38.6427633],
+			zoom: 3.25
+		});
+
+		usbeforemap.on('load', function () {
+			usbeforemap.addSource('usfires', {
+			type: 'geojson',
+			data: 'https://opendata.arcgis.com/datasets/c57777877aa041ecaef98ff2519aabf6_62.geojson',
+			cluster: true,
+			clusterMaxZoom: 14,
+			clusterRadius: 50
+			});
+
+			usbeforemap.addLayer({
+				id: 'clusters',
+				type: 'circle',
+				source: 'usfires',
+				filter: ['has', 'point_count'],
+				paint: {
+					'circle-color': [
+						'step',
+						['get', 'point_count'],
+						'rgba(255, 255, 204, 0.6)', 23.4375,
+						'rgba(255, 230, 148, 0.6)', 46.875,
+						'rgba(254, 190, 88, 0.6)', 93.75,
+						'rgba(252, 139, 58, 0.6)', 187.5,
+						'rgba(244, 61, 37, 0.6)', 375,
+						'rgba(200, 9, 35, 0.6)', 750,
+						'rgba(128, 0, 38, 0.6)'
+					],
+					'circle-radius': [
+						'step',
+						['get', 'point_count'],
+						10, 23.4375,
+					  15, 46.875,
+						20, 93.75,
+						25, 187.5,
+						30,	375,
+						35, 750,
+						40
+					]
+				}
+			});
+
+			usbeforemap.addLayer({
+				id: 'cluster-count',
+				type: 'symbol',
+				source: 'usfires',
+				filter: ['has', 'point_count'],
+				layout: {
+					'text-field': '{point_count_abbreviated}',
+					'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+					'text-size': 12
+				}
+			});
+
+			usbeforemap.addLayer({
+				id: 'unclustered-point',
+				type: 'circle',
+				source: 'usfires',
+				filter: ['!', ['has', 'point_count']],
+				paint: {
+					'circle-color': '#ec6937',
+					'circle-radius': 4,
+					'circle-stroke-width': 1,
+					'circle-stroke-color': '#fff'
+				}
+			});
+
+			usbeforemap.on('click', 'clusters', function (e) {
+				var features = usbeforemap.queryRenderedFeatures(e.point, {
+					layers: ['clusters']
+				});
+				var clusterId = features[0].properties.cluster_id;
+				usbeforemap.getSource('usfires').getClusterExpansionZoom(
+					clusterId,
+					function (err, zoom) {
+						if (err) return;
+
+						usbeforemap.easeTo({
+							center: features[0].geometry.coordinates,
+							zoom: zoom
+						});
+					}
+				);
+			});
+
+			usbeforemap.on('click', 'unclustered-point', function (e) {
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var firetype = e.features[0].properties.FIRE_TYPE;
+			var date = e.features[0].properties.IG_DATE;
+			var acres = e.features[0].properties.ACRES;
+			var comments = e.features[0].properties.COMMENTS;
+
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+			coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(
+				'Firetype: ' + firetype + '<br>Date of occurrence: ' + date.substring(0,10) + '<br>Acres burned: ' + acres + '<br>Comments: ' + comments
+			)
+			.addTo(usbeforemap);
+			});
+
+			usbeforemap.on('mouseenter', 'clusters', function () {
+				usbeforemap.getCanvas().style.cursor = 'pointer';
+			});
+			usbeforemap.on('mouseleave', 'clusters', function () {
+				usbeforemap.getCanvas().style.cursor = '';
+			});
+		});
+		var usaftermap = new mapboxgl.Map({
+			container: 'usafter',
+			style: "mapbox://styles/cmatsu/ckpijct8n1zmz18pabvhp3wb1",
+			// style: "mapbox://styles/cmatsu/ckpik028l0asm18mha8gcm7f4",
+			// center: [-81.760254, 27.994402],
+			center: [-98.327818, 38.6427633],
+			zoom: 3.25
+		});
+
+		usaftermap.on('load', function() {
+			usaftermap.setLayoutProperty('usfires', 'visibility', 'visible');
+			//create a legend
+			var layers = ['<strong>Number of Fires</strong>', '     1 ≤ x ≤ 10', '     10 < x ≤ 29', '     29 < x ≤ 57', '     57 < x ≤ 110', '     110 < x ≤ 219', '     219 < x ≤ 386', '     386 < x ≤ 772'];
+			// var layers = ['<strong>Number of Fires</strong>', '', '     1 ≤ x ≤ 9', '     9 < x ≤ 22', '     22 < x ≤ 35', '     35 < x ≤ 58', '     58 < x ≤ 102', '     102 < x ≤ 148', '     148 < x ≤ 233']; florida
+			var colors = ['', '#FFFFCC', '#FFE692', '#FEBF5A', '#FD8D3C', '#F43D25', '#CA0923', '#800026'];
+
+			for (i = 0; i < layers.length; i++) {
+					var layer = layers[i];
+					var color = colors[i];
+					var item = document.createElement('div');
+					var key = document.createElement('span');
+					key.className = 'legend-key';
+					key.style.backgroundColor = color;
+
+					var value = document.createElement('span');
+					value.innerHTML = layer;
+					item.appendChild(key);
+					item.appendChild(value);
+					usafterlegend.appendChild(item);
+			}
+		});
+
+		var uscontainer = '#uscompare';
+		var map = new mapboxgl.Compare(usbeforemap, usaftermap, uscontainer, {});
+	</script>
+	</body>
+</html>
