@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html>
 	<head>
-    <meta charset="utf-8" />
+		<meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>Hexbins: An Alternate Method of Visualizing Density</title>
 		<!-- insert Mapbox GL library links here -->
 		<link rel='preconnect' href='https://fonts.gstatic.com'>
 		<link href='https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap' rel='stylesheet'>
 		<link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet'/>
-		<link href='styles.css' rel='stylesheet'/>
 		<script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
 		<script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
 		<script src='https://unpkg.com/@turf/turf/turf.min.js'></script>
-
-    <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css">
-    <script src="https://js.arcgis.com/4.19/"></script>
+		<link href='styles.css' rel='stylesheet'>
 		<link rel="icon" href="images/favicon.png" type="image/png">
 	</head>
 	<body>
 		<div class='container'>
-			<h1 class='heading'>Hexbins</h1>
-			<h2 class='subheading'>An Alternate Method of Visualizing Density</h2>
+			<h1 class='heading'>Hexbins: An Alternate Method of Visualizing Density</h1>
 			<div class='desc nomargin'>
 				<h3>What are Hexbins?</h3>
 				<p>Picture any regular map that has a large set of point data. Now imagine there is some kind of gridded layer over it, where the grids are in the shape of a rectangle or hexagon. To put it simply, binning is a handy way of aggregating points that fall within a grid of such type of layer, and the quantities can be categorized and color coded the same way a choropleth map would be. </p>
@@ -28,24 +24,17 @@
 				<p>To demonstrate how much easier it is to visualize patterns in large point datasets using this method, USFS data for all fire occurrences recorded between 1984 and 2018 were used to showcase how hexbin mapping compares to mapping clustered point data.</p>
 			</div>
 			<h1 class='heading nomargin'>All Fire Occurrences in the US, 1984 - 2018</h1>
-			<div class='maps'>
-					<div id="usDiv"></div>
-			</div>
+			<iframe src='usmap.html' title='All fire occurrences in the US'></iframe>
 			<div class='desc'>
 				<p>This map was created with a bin size of 75 miles.</p>
 				<h3>What can we observe?</h3>
 				<p>It is evident that
 				There is a concentration of fires around Topeka, Kansas and Tulsa, Oklahoma.
-				Another prominent hotspot is Florida as a whole,
-
-				</p>
+				Another prominent hotspot is Florida as a whole,</p>
 				<p>Next, let's take a look at a hexbin map that focuses on the state of Florida.</p>
 			</div>
 			<h1 class='heading nomargin'>All Fire Occurrences in Florida, 1984 - 2018</h1>
-			<div class='maps'>
-					<div id="flDiv"></div>
-			</div>
-
+			<iframe src='flmap.html' title='All fire occurrences in Florida'></iframe>
 			<div class='desc'>
 				<p>This map was created with a bin size of 25 miles.</p>
 				<h3>What can we observe?</h3>
@@ -56,119 +45,8 @@
 			<a href="https://cmatsu.github.io/portfolio/work.html" class="pageBtn"><p>return to see all projects</p></a>
 		</div>
 		<!-- <pre id="info"></pre> -->
-    <script>
-		require([
-    	"esri/views/MapView",
-    	"esri/widgets/Legend","esri/layers/TileLayer",
-			"esri/widgets/LayerList",
-			 "esri/widgets/Swipe",
-        "esri/widgets/Expand",
-    	"esri/WebMap",
-    	"esri/widgets/ScaleBar"
-    ],
-    function(
-    	MapView,
-      Legend,  TileLayer, LayerList, Swipe, Expand,
-      WebMap,
-      ScaleBar
-    ) {
-    	var usmap = new WebMap({
-    		portalItem: { // autocasts as new PortalItem()
-    			id: "2ae55bf725b44a8a90939d56ca1e581a"
-    		}
-    	});
+		<script src="javascript.js"></script>
 
-    	var usview = new MapView({
-    	  container: "usDiv",
-    	  map: usmap
-    	});
-
-    	usview.when(function() {
-    	  // get the first layer in the collection of operational layers in the WebMap
-    	  // when the resources in the MapView have loaded.
-    	  var usfeatureLayer = usmap.layers.getItemAt(0);
-    	  var uslegend = new Legend({
-    	    view: usview
-    	  });
-
-        // Add widget to the bottom right corner of the view
-        usview.ui.add(uslegend, "bottom-right");
-      });
-
-
-		// 	const usa = new TileLayer({
-		// url: "https://services3.arcgis.com/J1Locv0GPOt6yBRR/arcgis/rest/services/us_fire_map_WFL1/FeatureServer/5",
-		// 	maxScale: 3000
-		// 	  });
-		// 	      usmap.add(usa);
-		// 	const usfires = new TileLayer({
-		// 	  url: "https://services3.arcgis.com/J1Locv0GPOt6yBRR/arcgis/rest/services/us_fire_map_WFL1/FeatureServer/1",
-		// 	    maxScale: 3000
-		// 	  });
-		// usmap.add(usfires);
-
-			// create a layerlist and expand widget and add to the view
-        const uslayerList = new LayerList({
-          view: usview
-        });
-        const usllExpand = new Expand({
-          view: usview,
-          content: uslayerList,
-          expanded: false
-        });
-        usview.ui.add(usllExpand, "top-right");
-
-      const usscalebar = new ScaleBar({
-        view: usview
-      });
-
-      usview.ui.add(usscalebar, "bottom-left");
-
-    });
-		require([
-			"esri/views/MapView",
-			"esri/widgets/Legend",
-			"esri/widgets/LayerList",
-			 "esri/widgets/Swipe",
-        "esri/widgets/Expand",
-			"esri/WebMap",
-			"esri/widgets/ScaleBar"
-		],
-		function(
-			MapView,
-			Legend, LayerList, Swipe, Expand,
-			WebMap,
-			ScaleBar
-		) {
-			var flmap = new WebMap({
-				portalItem: { // autocasts as new PortalItem()
-					id: "739d5859f0c744a5836be812e1dc4939"
-				}
-			});
-
-			var flview = new MapView({
-				container: "flDiv",
-				map: flmap
-			});
-
-			flview.when(function() {
-				// get the first layer in the collection of operational layers in the WebMap
-				// when the resources in the MapView have loaded.
-				var flfeatureLayer = flmap.layers.getItemAt(0);
-				var fllegend = new Legend({
-					view: flview
-				});
-
-				// Add widget to the bottom right corner of the view
-				flview.ui.add(fllegend, "bottom-right");
-			});
-			const flscalebar = new ScaleBar({
-				view: flview
-			});
-
-			flview.ui.add(flscalebar, "bottom-left");
-		});
-    </script>
 		<footer>
 		  <p>Created by Chiaki Matsuno 2021</p>
 		</footer>
