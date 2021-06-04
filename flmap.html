@@ -28,11 +28,11 @@
 			container: 'flbefore',
 			style: 'mapbox://styles/cmatsu/ckpioxob437pu18nzzx1551ax',
 			center: [-83.742524, 27.972109],
-			zoom: 5
+			zoom: 6
 		});
 
 		flbeforemap.on('load', function () {
-			flbeforemap.addSource('usfires', {
+			flbeforemap.addSource('flfires', {
 			type: 'geojson',
 			data: 'flfires.geojson',
 			cluster: true,
@@ -43,29 +43,29 @@
 			flbeforemap.addLayer({
 				id: 'clusters',
 				type: 'circle',
-				source: 'usfires',
+				source: 'flfires',
 				filter: ['has', 'point_count'],
 				paint: {
 					'circle-color': [
 						'step',
 						['get', 'point_count'],
-						'rgba(255, 255, 204, 0.6)', 23.4375,
-						'rgba(255, 230, 148, 0.6)', 46.875,
-						'rgba(254, 190, 88, 0.6)', 93.75,
-						'rgba(252, 139, 58, 0.6)', 187.5,
-						'rgba(244, 61, 37, 0.6)', 375,
-						'rgba(200, 9, 35, 0.6)', 750,
+						'rgba(255, 255, 204, 0.6)', 1,
+						'rgba(255, 230, 148, 0.6)', 25,
+						'rgba(254, 190, 88, 0.6)', 50,
+						'rgba(252, 139, 58, 0.6)', 100,
+						'rgba(244, 61, 37, 0.6)', 150,
+						'rgba(200, 9, 35, 0.6)', 200,
 						'rgba(128, 0, 38, 0.6)'
 					],
 					'circle-radius': [
 						'step',
 						['get', 'point_count'],
-						10, 23.4375,
-					  15, 46.875,
-						20, 93.75,
-						25, 187.5,
-						30,	375,
-						35, 750,
+						10, 1,
+					  15, 25,
+						20, 50,
+						25, 100,
+						30,	150,
+						35, 200,
 						40
 					]
 				}
@@ -74,7 +74,7 @@
 			flbeforemap.addLayer({
 				id: 'cluster-count',
 				type: 'symbol',
-				source: 'usfires',
+				source: 'flfires',
 				filter: ['has', 'point_count'],
 				layout: {
 					'text-field': '{point_count_abbreviated}',
@@ -86,7 +86,7 @@
 			flbeforemap.addLayer({
 				id: 'unclustered-point',
 				type: 'circle',
-				source: 'usfires',
+				source: 'flfires',
 				filter: ['!', ['has', 'point_count']],
 				paint: {
 					'circle-color': '#ec6937',
@@ -101,7 +101,7 @@
 					layers: ['clusters']
 				});
 				var clusterId = features[0].properties.cluster_id;
-				flbeforemap.getSource('usfires').getClusterExpansionZoom(
+				flbeforemap.getSource('flfires').getClusterExpansionZoom(
 					clusterId,
 					function (err, zoom) {
 						if (err) return;
@@ -145,14 +145,13 @@
 			container: 'flafter',
 			style: "mapbox://styles/cmatsu/ckpik028l0asm18mha8gcm7f4",
 			center:[-83.742524, 27.972109],
-			zoom: 5
+			zoom: 6
 		});
 
 		flaftermap.on('load', function() {
 			flaftermap.setLayoutProperty('flfires', 'visibility', 'visible');
 			//create a legend
-			var layers = ['<strong>Number of Fires</strong>', '     1 ≤ x ≤ 10', '     10 < x ≤ 29', '     29 < x ≤ 57', '     57 < x ≤ 110', '     110 < x ≤ 219', '     219 < x ≤ 386', '     386 < x ≤ 772'];
-			// var layers = ['<strong>Number of Fires</strong>', '', '     1 ≤ x ≤ 9', '     9 < x ≤ 22', '     22 < x ≤ 35', '     35 < x ≤ 58', '     58 < x ≤ 102', '     102 < x ≤ 148', '     148 < x ≤ 233']; florida
+			var layers = ['<strong>Number of Fires</strong>', '     1 ≤ x ≤ 9', '     9 < x ≤ 22', '     22 < x ≤ 35', '     35 < x ≤ 58', '     58 < x ≤ 102', '     102 < x ≤ 148', '     148 < x ≤ 233'];
 			var colors = ['', '#FFFFCC', '#FFE692', '#FEBF5A', '#FD8D3C', '#F43D25', '#CA0923', '#800026'];
 
 			for (i = 0; i < layers.length; i++) {
