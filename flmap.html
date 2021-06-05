@@ -13,37 +13,37 @@
 
 	<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
 	<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
-	<link rel="stylesheet" href="flstyles.css" type="text/css">
-	<div id="flcompare">
-		<div id="flbefore" class="map"></div>
-		<div id="flafter" class="map">
-			<div class='map-overlay' id='flafterlegend'></div>
+	<link rel="stylesheet" href="mapstyles.css" type="text/css">
+	<div id="compare">
+		<div id="before" class="map"></div>
+		<div id="after" class="map">
+			<div class='map-overlay' id='afterlegend'></div>
 		</div>
 	</div>
 
 	<script>
 		mapboxgl.accessToken = "pk.eyJ1IjoiY21hdHN1IiwiYSI6ImNraGNuNmw0YzAxajIyeXA1ZWE4aG80NDcifQ.3Y8_bQTBQeuNtqFL3OMBVw";
 
-		var flbeforemap = new mapboxgl.Map({
-			container: 'flbefore',
+		var beforemap = new mapboxgl.Map({
+			container: 'before',
 			style: 'mapbox://styles/cmatsu/ckpioxob437pu18nzzx1551ax',
 			center: [-83.742524, 27.972109],
-			zoom: 7
+			zoom: 6
 		});
 
-		flbeforemap.on('load', function () {
-			flbeforemap.addSource('flfires', {
+		beforemap.on('load', function () {
+			beforemap.addSource('fires', {
 			type: 'geojson',
-			data: 'flfires.geojson',
+			data: 'fires.geojson',
 			cluster: true,
 			clusterMaxZoom: 14,
 			clusterRadius: 50
 			});
 
-			flbeforemap.addLayer({
+			beforemap.addLayer({
 				id: 'clusters',
 				type: 'circle',
-				source: 'flfires',
+				source: 'fires',
 				filter: ['has', 'point_count'],
 				paint: {
 					'circle-color': [
@@ -71,10 +71,10 @@
 				}
 			});
 
-			flbeforemap.addLayer({
+			beforemap.addLayer({
 				id: 'cluster-count',
 				type: 'symbol',
-				source: 'flfires',
+				source: 'fires',
 				filter: ['has', 'point_count'],
 				layout: {
 					'text-field': '{point_count_abbreviated}',
@@ -83,10 +83,10 @@
 				}
 			});
 
-			flbeforemap.addLayer({
+			beforemap.addLayer({
 				id: 'unclustered-point',
 				type: 'circle',
-				source: 'flfires',
+				source: 'fires',
 				filter: ['!', ['has', 'point_count']],
 				paint: {
 					'circle-color': '#ec6937',
@@ -96,17 +96,17 @@
 				}
 			});
 
-			flbeforemap.on('click', 'clusters', function (e) {
-				var features = flbeforemap.queryRenderedFeatures(e.point, {
+			beforemap.on('click', 'clusters', function (e) {
+				var features = beforemap.queryRenderedFeatures(e.point, {
 					layers: ['clusters']
 				});
 				var clusterId = features[0].properties.cluster_id;
-				flbeforemap.getSource('flfires').getClusterExpansionZoom(
+				beforemap.getSource('fires').getClusterExpansionZoom(
 					clusterId,
 					function (err, zoom) {
 						if (err) return;
 
-						flbeforemap.easeTo({
+						beforemap.easeTo({
 							center: features[0].geometry.coordinates,
 							zoom: zoom
 						});
@@ -114,7 +114,7 @@
 				);
 			});
 
-			flbeforemap.on('click', 'unclustered-point', function (e) {
+			beforemap.on('click', 'unclustered-point', function (e) {
 			var coordinates = e.features[0].geometry.coordinates.slice();
 			var firetype = e.features[0].properties.FIRE_TYPE;
 			var date = e.features[0].properties.IG_DATE;
@@ -130,26 +130,26 @@
 			.setHTML(
 				'Firetype: ' + firetype + '<br>Date of occurrence: ' + date.substring(0,10) + '<br>Acres burned: ' + acres + '<br>Comments: ' + comments
 			)
-			.addTo(flbeforemap);
+			.addTo(beforemap);
 			});
 
-			flbeforemap.on('mouseenter', 'clusters', function () {
-				flbeforemap.getCanvas().style.cursor = 'pointer';
+			beforemap.on('mouseenter', 'clusters', function () {
+				beforemap.getCanvas().style.cursor = 'pointer';
 			});
 
-			flbeforemap.on('mouseleave', 'clusters', function () {
-				flbeforemap.getCanvas().style.cursor = '';
+			beforemap.on('mouseleave', 'clusters', function () {
+				beforemap.getCanvas().style.cursor = '';
 			});
 		});
-		var flaftermap = new mapboxgl.Map({
-			container: 'flafter',
+		var aftermap = new mapboxgl.Map({
+			container: 'after',
 			style: "mapbox://styles/cmatsu/ckpik028l0asm18mha8gcm7f4",
 			center:[-83.742524, 27.972109],
-			zoom: 7
+			zoom: 6
 		});
 
-		flaftermap.on('load', function() {
-			flaftermap.setLayoutProperty('flfires', 'visibility', 'visible');
+		aftermap.on('load', function() {
+			aftermap.setLayoutProperty('fires', 'visibility', 'visible');
 			//create a legend
 			var layers = ['<strong>Number of Fires</strong>', '     1 ≤ x ≤ 9', '     9 < x ≤ 22', '     22 < x ≤ 35', '     35 < x ≤ 58', '     58 < x ≤ 102', '     102 < x ≤ 148', '     148 < x ≤ 233'];
 			var colors = ['', '#FFFFCC', '#FFE692', '#FEBF5A', '#FD8D3C', '#F43D25', '#CA0923', '#800026'];
@@ -166,12 +166,12 @@
 					value.innerHTML = layer;
 					item.appendChild(key);
 					item.appendChild(value);
-					flafterlegend.appendChild(item);
+					afterlegend.appendChild(item);
 			}
 		});
 
-		var flcontainer = '#flcompare';
-		var map = new mapboxgl.Compare(flbeforemap, flaftermap, flcontainer, {});
+		var container = '#compare';
+		var map = new mapboxgl.Compare(beforemap, aftermap, container, {});
 	</script>
 	</body>
 </html>
