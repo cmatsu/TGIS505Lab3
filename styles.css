@@ -62,7 +62,6 @@ p {
   font-size: 13pt;
   color: #503d2b;
   line-height: 1.5;
-  display: inline;
 }
 
 footer p {
@@ -81,7 +80,7 @@ a {
 }
 
 a:hover.pageBtn {
-  background-color:  #e0b4c6;
+  background-color: #e0b4c6;
   transition: all 0.5s ease 0s;
 }
 a.pageBtn:hover > p {
@@ -99,15 +98,8 @@ a.pageBtn:hover > p {
   content: attr(data-text);
   position:absolute;
   font-size: 10pt;
-  transform:translateY(-50%);
-  white-space: normal;
-  top: 450%;
+  transform:translateY(-50%);  top: 450%;
   left:-15%;
-  /* margin-top:72px; */
-  /* top: 50%;
-  left: 100%;
-  margin-left:15px; */
-  /* basic styles */
   width:200px;
   height:100px;
   padding:10px;
@@ -126,7 +118,7 @@ a.pageBtn:hover > p {
 .tooltip:after {
   content: "";
   position:absolute;
-  white-space: normal;
+
   left:45%;
   top: 122%;
   transform:translateY(-50%);
@@ -135,5 +127,5 @@ a.pageBtn:hover > p {
   display:none;
 }
 .tooltip:hover:before, .tooltip:hover:after {
-  display:block;
+  display:block;white-space: normal;
 }
