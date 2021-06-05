@@ -53,7 +53,7 @@ div.nomargin {
   margin: 30px 11vw 30px 11vw;
   width: 70vw;
   max-width: 1000px;
-  overflow: auto;
+  overflow: hidden;
   padding: 20px 40px 20px 40px;
   box-sizing: border-box;
 }
@@ -62,6 +62,7 @@ p {
   font-size: 13pt;
   color: #503d2b;
   line-height: 1.5;
+  display: inline;
 }
 
 footer p {
@@ -86,4 +87,53 @@ a:hover.pageBtn {
 a.pageBtn:hover > p {
   color: #000000;
   transition: all 0.5s ease 0s;
+}
+.tooltip {
+  position:relative;
+  border-bottom:1px dashed #000;
+  cursor: pointer;
+  white-space: pre;
+}
+
+.tooltip:before {
+  content: attr(data-text);
+  position:absolute;
+  font-size: 10pt;
+  transform:translateY(-50%);
+  white-space: normal;
+  top: 450%;
+  left:-15%;
+  /* margin-top:72px; */
+  /* top: 50%;
+  left: 100%;
+  margin-left:15px; */
+  /* basic styles */
+  width:200px;
+  height:100px;
+  padding:10px;
+  border-radius:10px;
+  color: #fff;
+  text-align:center;
+  display:none;
+  background: rgba(124, 108, 111, 0.85);
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+.tooltip:hover:before {
+  display:block;
+}
+.tooltip:after {
+  content: "";
+  position:absolute;
+  white-space: normal;
+  left:45%;
+  top: 122%;
+  transform:translateY(-50%);
+  border:10px solid rgba(124, 108, 111, 0.85);
+  border-color: transparent transparent rgba(124, 108, 111, 0.85) transparent;
+  display:none;
+}
+.tooltip:hover:before, .tooltip:hover:after {
+  display:block;
 }

@@ -32,9 +32,9 @@
 		});
 
 		beforemap.on('load', function () {
-			beforemap.addSource('fires', {
+			beforemap.addSource('flfires', {
 			type: 'geojson',
-			data: 'fires.geojson',
+			data: 'flfires.geojson',
 			cluster: true,
 			clusterMaxZoom: 14,
 			clusterRadius: 50
@@ -43,7 +43,7 @@
 			beforemap.addLayer({
 				id: 'clusters',
 				type: 'circle',
-				source: 'fires',
+				source: 'flfires',
 				filter: ['has', 'point_count'],
 				paint: {
 					'circle-color': [
@@ -74,7 +74,7 @@
 			beforemap.addLayer({
 				id: 'cluster-count',
 				type: 'symbol',
-				source: 'fires',
+				source: 'flfires',
 				filter: ['has', 'point_count'],
 				layout: {
 					'text-field': '{point_count_abbreviated}',
@@ -86,7 +86,7 @@
 			beforemap.addLayer({
 				id: 'unclustered-point',
 				type: 'circle',
-				source: 'fires',
+				source: 'flfires',
 				filter: ['!', ['has', 'point_count']],
 				paint: {
 					'circle-color': '#ec6937',
@@ -101,7 +101,7 @@
 					layers: ['clusters']
 				});
 				var clusterId = features[0].properties.cluster_id;
-				beforemap.getSource('fires').getClusterExpansionZoom(
+				beforemap.getSource('flfires').getClusterExpansionZoom(
 					clusterId,
 					function (err, zoom) {
 						if (err) return;
@@ -149,9 +149,9 @@
 		});
 
 		aftermap.on('load', function() {
-			aftermap.setLayoutProperty('fires', 'visibility', 'visible');
+			aftermap.setLayoutProperty('flfires', 'visibility', 'visible');
 			//create a legend
-			var layers = ['<strong>Number of Fires</strong>', '     1 ≤ x ≤ 9', '     9 < x ≤ 22', '     22 < x ≤ 35', '     35 < x ≤ 58', '     58 < x ≤ 102', '     102 < x ≤ 148', '     148 < x ≤ 233'];
+			var layers = ['<strong>Number of flfires</strong>', '     1 ≤ x ≤ 9', '     9 < x ≤ 22', '     22 < x ≤ 35', '     35 < x ≤ 58', '     58 < x ≤ 102', '     102 < x ≤ 148', '     148 < x ≤ 233'];
 			var colors = ['', '#FFFFCC', '#FFE692', '#FEBF5A', '#FD8D3C', '#F43D25', '#CA0923', '#800026'];
 
 			for (i = 0; i < layers.length; i++) {
